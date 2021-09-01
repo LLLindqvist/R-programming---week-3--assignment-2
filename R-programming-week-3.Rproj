@@ -1,13 +1,45 @@
-Version: 1.0
+## This function constructs an object that can cache the inverse of a given matrix, given the input from cacheSolve
 
-RestoreWorkspace: Default
-SaveWorkspace: Default
-AlwaysSaveHistory: Default
+makeCacheMatrix <- function(x = matrix()) {
+  #Clear any previous cached inverted matrices
+  inv <- NULL
+  
+  #Set/define new matrix and reset 'inv' anytime the matrix values are changed
+  set <- function(y) {
+    x <<- y
+    inv <<- NULL
+  }
+  #Get matrix
+  get <- function() x
+  
+  #Set inverse. Uses result from cacheSolve.
+  setinv <- function(inverse) inv <<- inverse
+  
+  #Gets inverted matrix, if cached
+  getinv <- function() inv
+  
+  #Name list elements to allow use of atomic vectors (eg. myMatrix$getinv())
+  list(set = set, get = get,
+       setinv = setinv, getinv = getinv)
+}
 
-EnableCodeIndexing: Yes
-UseSpacesForTab: Yes
-NumSpacesForTab: 2
-Encoding: UTF-8
 
-RnwWeave: Sweave
-LaTeX: pdfLaTeX
+## This function calculates the inverse of the matrix defined by an object created with makeCacheMatrix
+
+cacheSolve <- function(x, ...) {
+  inv <- x$getinv
+  
+  #Checks for cached inverted matrix and returns it if stored. 
+  if(!is.null(inv)) {
+    message("getting cached inverse matrix")
+    return(inv) #Checks for cached inverted matrix and returns it if stored. 
+  }
+  
+  #If no cached inverted matrix is detected, this part calculates the inverse matrix and returns it
+  data <- x$get()
+  inv <- solve(data, ...)
+  x$setinv(inv)
+  inv
+}
+
+
